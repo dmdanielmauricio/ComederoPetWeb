@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ApiComederoPet.Data;
-using ApiComederoPet.Models;
+
 
 
 
@@ -13,6 +12,6 @@ namespace ComederoPetWeb.Data
         {
         }
 
-        public DbSet<User> Users { get; set; }
+       
     }
 }
