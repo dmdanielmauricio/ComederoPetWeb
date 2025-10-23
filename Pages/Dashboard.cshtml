@@ -1,0 +1,184 @@
+﻿@page
+@model DashboardModel
+@{
+    ViewData["Title"] = "Panel Principal";
+}
+
+<style>
+    body {
+        background-color: #f9fafc;
+    }
+
+    .dashboard-header h2 {
+        font-weight: 700;
+        color: #2563eb;
+    }
+
+    .dashboard-card {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-3px);
+    }
+
+    .status-indicator {
+        display: inline-flex;
+        align-items: center;
+        font-weight: 600;
+    }
+
+    .status-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+
+    .dot-green {
+        background-color: #22c55e;
+    }
+
+    .dot-red {
+        background-color: #ef4444;
+    }
+
+    .btn-feed {
+        background: linear-gradient(90deg, #3b82f6, #2563eb);
+        color: white;
+        border-radius: 12px;
+        padding: 10px 20px;
+        font-weight: 600;
+    }
+
+    .btn-feed:hover {
+        background: linear-gradient(90deg, #2563eb, #1d4ed8);
+    }
+
+    .feed-history {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+</style>
+
+<div class="container py-4">
+    <!-- Encabezado -->
+    <div class="text-center mb-5 dashboard-header">
+        <h2>🐶 Panel de Alimentación Automática</h2>
+        <p class="text-muted">Controla, programa y supervisa el comedero de tu mascota</p>
+        <a href="/Logout" class="btn btn-outline-danger btn-sm mt-2">Cerrar sesión</a>
+    </div>
+
+    <!-- Panel -->
+    <div class="row g-4">
+        <!-- Estado -->
+        <div class="col-md-6">
+            <div class="card dashboard-card p-3">
+                <div class="card-body text-center">
+                    <h5 class="card-title mb-3">Estado del Comedero</h5>
+                    <div id="status" class="alert alert-light border">
+                        <span class="status-indicator">
+                            <span class="status-dot dot-red"></span>
+                            Desconectado
+                        </span>
+                    </div>
+                    <button class="btn btn-feed" id="btn-feed">🐾 Alimentar Manualmente</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Última Alimentación -->
+        <div class="col-md-6">
+            <div class="card dashboard-card p-3">
+                <div class="card-body text-center">
+                    <h5 class="card-title mb-3">Última Alimentación</h5>
+                    <p id="lastFeed" class="fs-4 fw-bold text-success">-</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historial -->
+        <div class="col-12">
+            <div class="card dashboard-card p-3">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Historial de Alimentaciones</h5>
+                    <ul id="feedHistory" class="list-group list-group-flush feed-history">
+                        <li class="list-group-item text-center text-muted">Cargando...</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const apiBase = "https://apicomederopet.onrender.com/api/feed";
+    const apiStatus = `${apiBase}/status`;
+    const apiFeed = `${apiBase}/manual`;
+    const apiHistory = `${apiBase}/check`; // opcional, puedes agregar history luego
+
+    const statusEl = document.getElementById("status");
+    const lastFeedEl = document.getElementById("lastFeed");
+    const feedHistoryEl = document.getElementById("feedHistory");
+
+    async function loadStatus() {
+        try {
+            const res = await fetch(apiStatus);
+            const data = await res.json();
+
+            if (data.status === "ok") {
+                statusEl.innerHTML = `
+                    <span class="status-indicator">
+                        <span class="status-dot dot-green"></span>
+                        Conectado
+                    </span>
+                `;
+                lastFeedEl.textContent = data.ultimaAlimentacion || "-";
+            } else {
+                throw new Error("Estado no OK");
+            }
+        } catch (err) {
+            statusEl.innerHTML = `
+                <span class="status-indicator">
+                    <span class="status-dot dot-red"></span>
+                    Error de conexión
+                </span>
+            `;
+            console.error(err);
+        }
+    }
+
+    async function alimentarManual() {
+        const btn = document.getElementById("btn-feed");
+        btn.disabled = true;
+        btn.innerText = "Alimentando... 🐕";
+
+        try {
+            const res = await fetch(apiFeed, { method: "POST" });
+            const data = await res.json();
+
+            if (data.message) {
+                alert("✅ " + data.message);
+            } else {
+                alert("⚠️ Error inesperado en la respuesta");
+            }
+        } catch (err) {
+            alert("❌ Error al conectar con la API");
+            console.error(err);
+        }
+
+        btn.disabled = false;
+        btn.innerText = "🐾 Alimentar Manualmente";
+        await loadStatus();
+    }
+
+    document.getElementById("btn-feed").addEventListener("click", alimentarManual);
+
+    // Cargar estado al iniciar
+    loadStatus();
+</script>
+
+
+
