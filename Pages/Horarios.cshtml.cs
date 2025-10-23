@@ -1,76 +1,78 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Text.Json;
-using System.Text;
-using System.Net.Http.Headers;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Threading.Tasks;
 
-namespace ComederoPetWeb.Pages
+public class HorariosModel : PageModel
 {
-    public class HorariosModel : PageModel
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IConfiguration _config;
+
+    public List<ScheduleDto> Horarios { get; set; } = new();
+
+    [BindProperty]
+    public TimeSpan NewTime { get; set; }
+
+    public HorariosModel(IHttpClientFactory httpClientFactory, IConfiguration config)
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly string apiUrl = "https://apicomederopet.onrender.com/api/schedule";
+        _httpClientFactory = httpClientFactory;
+        _config = config;
+    }
 
-        public HorariosModel(IHttpClientFactory httpClientFactory)
+    private string ApiBaseUrl => _config["ApiSettings:BaseUrl"];
+
+    public async Task OnGetAsync()
+    {
+        var client = _httpClientFactory.CreateClient();
+        var apiUrl = $"{ApiBaseUrl}Schedule";  // ✅ usa la base configurada
+        Horarios = await client.GetFromJsonAsync<List<ScheduleDto>>(apiUrl) ?? new();
+    }
+
+    public async Task<IActionResult> OnPostAddAsync()
+    {
+        var client = _httpClientFactory.CreateClient();
+        var apiUrl = $"{ApiBaseUrl}Schedule";
+
+        var schedule = new ScheduleDto
         {
-            _httpClientFactory = httpClientFactory;
-        }
+            UserId = 1, // más adelante usarás el usuario real logueado
+            Time = DateTime.Today.Add(NewTime),
+            Active = true
+        };
 
-        public List<ScheduleItem>? Schedules { get; set; }
+        await client.PostAsJsonAsync(apiUrl, schedule);
+        return RedirectToPage();
+    }
 
-        public async Task OnGetAsync()
-        {
-            var client = _httpClientFactory.CreateClient();
-            var response = await client.GetAsync(apiUrl);
+    public async Task<IActionResult> OnPostDeleteAsync(int id)
+    {
+        var client = _httpClientFactory.CreateClient();
+        var apiUrl = $"{ApiBaseUrl}Schedule/{id}";
+        await client.DeleteAsync(apiUrl);
+        return RedirectToPage();
+    }
 
-            if (response.IsSuccessStatusCode)
-            {
-                var json = await response.Content.ReadAsStringAsync();
-                Schedules = JsonSerializer.Deserialize<List<ScheduleItem>>(json,
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            }
-            else
-            {
-                Schedules = new List<ScheduleItem>();
-            }
-        }
+    public async Task<IActionResult> OnPostToggleAsync(int id)
+    {
+        var client = _httpClientFactory.CreateClient();
+        var apiUrl = $"{ApiBaseUrl}Schedule";
 
-        public async Task<IActionResult> OnPostAddAsync(string Time, string Days)
-        {
-            var client = _httpClientFactory.CreateClient();
+        var horarios = await client.GetFromJsonAsync<List<ScheduleDto>>(apiUrl);
+        var item = horarios?.FirstOrDefault(h => h.Id == id);
+        if (item == null) return RedirectToPage();
 
-            var newSchedule = new
-            {
-                userId = 1, // puedes ajustar seg�n login
-                time = DateTime.Parse(Time),
-                days = Days,
-                active = true
-            };
+        item.Active = !item.Active;
+        await client.PostAsJsonAsync(apiUrl, item); // se actualizará (usa POST por ahora)
 
-            var content = new StringContent(
-                JsonSerializer.Serialize(newSchedule),
-                Encoding.UTF8,
-                "application/json");
+        return RedirectToPage();
+    }
 
-            await client.PostAsync(apiUrl, content);
-
-            return RedirectToPage();
-        }
-
-        public async Task<IActionResult> OnPostDeleteAsync(int id)
-        {
-            var client = _httpClientFactory.CreateClient();
-            await client.DeleteAsync($"{apiUrl}/{id}");
-            return RedirectToPage();
-        }
-
-        public class ScheduleItem
-        {
-            public int Id { get; set; }
-            public int UserId { get; set; }
-            public DateTime Time { get; set; }
-            public string Days { get; set; } = string.Empty;
-            public bool Active { get; set; }
-        }
+    public class ScheduleDto
+    {
+        public int Id { get; set; }
+        public int UserId { get; set; }
+        public DateTime Time { get; set; }
+        public bool Active { get; set; }
     }
 }

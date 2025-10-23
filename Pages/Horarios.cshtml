@@ -1,73 +1,82 @@
 ﻿@page
-@model ComederoPetWeb.Pages.HorariosModel
+@model HorariosModel
 @{
-    ViewData["Title"] = "Programar Horarios Automáticos";
+    ViewData["Title"] = "Horarios de Alimentación";
 }
 
 <div class="container py-4">
-    <h2 class="fw-bold text-primary mb-4">⏰ Programar Horarios Automáticos</h2>
+    <h2 class="fw-bold text-primary mb-4">
+        <i class="bi bi-clock-history"></i> Horarios de Alimentación Automática
+    </h2>
 
-    <div class="card shadow-sm mb-4 p-3">
-        <h5 class="mb-3">Agregar nuevo horario</h5>
-        <form method="post" asp-page-handler="Add">
-            <div class="row">
-                <div class="col-md-4">
-                    <label>Hora</label>
-                    <input type="time" class="form-control" name="Time" required />
+    <!-- Formulario para agregar nuevo horario -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Agregar nuevo horario</h5>
+            <form method="post" asp-page-handler="Add">
+                <div class="row g-3 align-items-center">
+                    <div class="col-auto">
+                        <input type="time" class="form-control" name="NewTime" required />
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Agregar
+                        </button>
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <label>Días (separados por coma)</label>
-                    <input type="text" class="form-control" name="Days" placeholder="Lunes,Miércoles,Viernes" required />
-                </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button class="btn btn-success w-100" type="submit">➕ Agregar</button>
-                </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 
-    <div class="card shadow-sm p-3">
-        <h5>Horarios programados</h5>
-        @if (Model.Schedules == null || !Model.Schedules.Any())
-        {
-            <p class="text-muted mt-3">No hay horarios registrados aún.</p>
-        }
-        else
-        {
-            <table class="table table-striped mt-3">
-                <thead>
-                    <tr>
-                        <th>Hora</th>
-                        <th>Días</th>
-                        <th>Activo</th>
-                        <th>Acción</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var s in Model.Schedules)
-                    {
+    <!-- Listado de horarios -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Horarios Programados</h5>
+
+            @if (Model.Horarios == null || !Model.Horarios.Any())
+            {
+                <p class="text-muted">No hay horarios registrados aún.</p>
+            }
+            else
+            {
+                <table class="table table-striped align-middle">
+                    <thead>
                         <tr>
-                            <td>@s.Time.ToString("HH:mm")</td>
-                            <td>@s.Days</td>
-                            <td>
-                                @if (s.Active)
-                                {
-                                    <span class="text-success fw-bold">Sí</span>
-                                }
-                                else
-                                {
-                                    <span class="text-danger fw-bold">No</span>
-                                }
-                            </td>
-                            <td>
-                                <form method="post" asp-page-handler="Delete" asp-route-id="@s.Id">
-                                    <button type="submit" class="btn btn-sm btn-danger">🗑 Eliminar</button>
-                                </form>
-                            </td>
+                            <th>Hora</th>
+                            <th>Activo</th>
+                            <th>Acciones</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
-        }
+                    </thead>
+                    <tbody>
+                        @foreach (var h in Model.Horarios)
+                        {
+                            <tr>
+                                <td>@h.Time.ToString("HH:mm")</td>
+                                <td>
+                                    <span class="badge @(h.Active ? "bg-success" : "bg-secondary")">
+                                        @(h.Active ? "Sí" : "No")
+                                    </span>
+                                </td>
+                                <td>
+                                    <form method="post" asp-page-handler="Toggle" class="d-inline">
+                                        <input type="hidden" name="Id" value="@h.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-warning">
+                                            <i class="bi bi-toggle-on"></i> Cambiar
+                                        </button>
+                                    </form>
+
+                                    <form method="post" asp-page-handler="Delete" class="d-inline">
+                                        <input type="hidden" name="Id" value="@h.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i> Eliminar
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
     </div>
 </div>
