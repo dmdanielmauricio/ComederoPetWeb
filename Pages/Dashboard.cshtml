@@ -5,119 +5,297 @@
 }
 
 <style>
+    @@media (max-width: 768px) {
+        .header h1 {
+            font-size: 1.8rem;
+        }
+
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        50% {
+            opacity: 0.8;
+            transform: scale(1.1);
+        }
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
     body {
-        background-color: #f9fafc;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #cdcffa 0%, #e3dff5 100%);
+        min-height: 100vh;
+        padding: 20px;
     }
 
-    .dashboard-header h2 {
-        font-weight: 700;
-        color: #2563eb;
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
     }
 
-    .dashboard-card {
-        border: none;
+    .header {
+        text-align: center;
+        color: white;
+        margin-bottom: 40px;
+        animation: fadeInDown 0.6s ease;
+    }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+    .logout-btn {
+        margin-top: 15px;
+        padding: 10px 25px;
+        background: rgba(255,255,255,0.2);
+        border: 2px solid white;
+        color: white;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+        .logout-btn:hover {
+            background: white;
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+        margin-bottom: 30px;
+    }
+
+    .card {
+        background: white;
         border-radius: 20px;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-        transition: transform 0.2s ease-in-out;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+        animation: fadeInUp 0.6s ease;
     }
 
-    .dashboard-card:hover {
-        transform: translateY(-3px);
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+    .status-box {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 20px;
+        border-radius: 15px;
+        text-align: center;
+        margin-bottom: 20px;
     }
 
     .status-indicator {
         display: inline-flex;
         align-items: center;
+        gap: 10px;
+        font-size: 1.2rem;
         font-weight: 600;
     }
 
     .status-dot {
-        width: 12px;
-        height: 12px;
+        width: 16px;
+        height: 16px;
         border-radius: 50%;
-        margin-right: 8px;
+        animation: pulse 2s infinite;
     }
 
     .dot-green {
         background-color: #22c55e;
+        box-shadow: 0 0 15px rgba(34, 197, 94, 0.6);
     }
 
     .dot-red {
         background-color: #ef4444;
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
     }
 
-    .btn-feed {
-        background: linear-gradient(90deg, #3b82f6, #2563eb);
+    .feed-btn {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
+        border: none;
         border-radius: 12px;
-        padding: 10px 20px;
+        font-size: 1.1rem;
         font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
     }
 
-    .btn-feed:hover {
-        background: linear-gradient(90deg, #2563eb, #1d4ed8);
+        .feed-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .feed-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+    .last-feed {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #667eea;
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    .history-card {
+        grid-column: 1 / -1;
     }
 
     .feed-history {
-        max-height: 300px;
+        max-height: 400px;
         overflow-y: auto;
+        padding-right: 10px;
+    }
+
+        .feed-history::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .feed-history::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .feed-history::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+
+            .feed-history::-webkit-scrollbar-thumb:hover {
+                background: #764ba2;
+            }
+
+    .history-item {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf3 100%);
+        padding: 15px 20px;
+        margin-bottom: 12px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: all 0.3s ease;
+        border-left: 4px solid #667eea;
+    }
+
+        .history-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+    .history-icon {
+        font-size: 1.8rem;
+    }
+
+    .history-time {
+        font-weight: 600;
+        color: #333;
+        font-size: 1.05rem;
+    }
+
+    .loading {
+        text-align: center;
+        padding: 30px;
+        color: #666;
+        font-size: 1.1rem;
     }
 </style>
 
-<div class="container py-4">
-    <!-- Encabezado -->
-    <div class="text-center mb-5 dashboard-header">
-        <h2>🐶 Panel de Alimentación Automática</h2>
-        <p class="text-muted">Controla, programa y supervisa el comedero de tu mascota</p>
-        <a href="/Logout" class="btn btn-outline-danger btn-sm mt-2">Cerrar sesión</a>
+<div class="container">
+    <div class="header">
+        <h1>🐶 Panel de Alimentación Automática</h1>
+        <p>Controla, programa y supervisa el comedero de tu mascota</p>
+        <a href="/Logout" class="logout-btn">Cerrar sesión</a>
     </div>
 
-    <!-- Panel -->
-    <div class="row g-4">
-        <!-- Estado -->
-        <div class="col-md-6">
-            <div class="card dashboard-card p-3">
-                <div class="card-body text-center">
-                    <h5 class="card-title mb-3">Estado del Comedero</h5>
-                    <div id="status" class="alert alert-light border">
-                        <span class="status-indicator">
-                            <span class="status-dot dot-red"></span>
-                            Desconectado
-                        </span>
-                    </div>
-                    <button class="btn btn-feed" id="btn-feed">🐾 Alimentar Manualmente</button>
+    <div class="dashboard-grid">
+        <div class="card">
+            <h2>📡 Estado del Comedero</h2>
+            <div class="status-box">
+                <div id="status" class="status-indicator">
+                    <span class="status-dot dot-red"></span>
+                    <span>Desconectado</span>
                 </div>
             </div>
+            <button class="feed-btn" id="btn-feed">🐾 Alimentar Manualmente</button>
         </div>
 
-        <!-- Última Alimentación -->
-        <div class="col-md-6">
-            <div class="card dashboard-card p-3">
-                <div class="card-body text-center">
-                    <h5 class="card-title mb-3">Última Alimentación</h5>
-                    <p id="lastFeed" class="fs-4 fw-bold text-success">-</p>
-                </div>
-            </div>
+        <div class="card">
+            <h2>⏰ Última Alimentación</h2>
+            <div class="last-feed" id="lastFeed">-</div>
         </div>
 
-        <!-- Historial -->
-        <div class="col-12">
-            <div class="card dashboard-card p-3">
-                <div class="card-body">
-                    <h5 class="card-title mb-3">Historial de Alimentaciones</h5>
-                    <ul id="feedHistory" class="list-group list-group-flush feed-history">
-                        <li class="list-group-item text-center text-muted">Cargando...</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
+
 <script>
     const apiBase = "https://apicomederopet.onrender.com/api/feed";
     const apiStatus = `${apiBase}/status`;
     const apiFeed = `${apiBase}/manual`;
-    const apiHistory = `${apiBase}/check`; // opcional, puedes agregar history luego
 
     const statusEl = document.getElementById("status");
     const lastFeedEl = document.getElementById("lastFeed");
@@ -130,22 +308,43 @@
 
             if (data.status === "ok") {
                 statusEl.innerHTML = `
-                    <span class="status-indicator">
-                        <span class="status-dot dot-green"></span>
-                        Conectado
-                    </span>
+                    <span class="status-dot dot-green"></span>
+                    <span>Conectado</span>
                 `;
                 lastFeedEl.textContent = data.ultimaAlimentacion || "-";
+                loadHistory();
             } else {
                 throw new Error("Estado no OK");
             }
         } catch (err) {
             statusEl.innerHTML = `
-                <span class="status-indicator">
-                    <span class="status-dot dot-red"></span>
-                    Error de conexión
-                </span>
+                <span class="status-dot dot-red"></span>
+                <span>Error de conexión</span>
             `;
+            feedHistoryEl.innerHTML = '<div class="loading">No se pudo cargar el historial</div>';
+            console.error(err);
+        }
+    }
+
+    async function loadHistory() {
+        feedHistoryEl.innerHTML = '<div class="loading">Cargando historial...</div>';
+
+        try {
+            const res = await fetch(`${apiBase}/history`);
+            const data = await res.json();
+
+            if (data.historial && data.historial.length > 0) {
+                feedHistoryEl.innerHTML = data.historial.map(item => `
+                    <div class="history-item">
+                        <span class="history-icon">🍖</span>
+                        <span class="history-time">${item}</span>
+                    </div>
+                `).join('');
+            } else {
+                feedHistoryEl.innerHTML = '<div class="loading">No hay alimentaciones registradas</div>';
+            }
+        } catch (err) {
+            feedHistoryEl.innerHTML = '<div class="loading">Error al cargar el historial</div>';
             console.error(err);
         }
     }
@@ -153,7 +352,7 @@
     async function alimentarManual() {
         const btn = document.getElementById("btn-feed");
         btn.disabled = true;
-        btn.innerText = "Alimentando... 🐕";
+        btn.innerHTML = "⏳ Alimentando...";
 
         try {
             const res = await fetch(apiFeed, { method: "POST" });
@@ -161,6 +360,7 @@
 
             if (data.message) {
                 alert("✅ " + data.message);
+                await loadStatus();
             } else {
                 alert("⚠️ Error inesperado en la respuesta");
             }
@@ -170,15 +370,11 @@
         }
 
         btn.disabled = false;
-        btn.innerText = "🐾 Alimentar Manualmente";
-        await loadStatus();
+        btn.innerHTML = "🐾 Alimentar Manualmente";
     }
 
     document.getElementById("btn-feed").addEventListener("click", alimentarManual);
 
-    // Cargar estado al iniciar
     loadStatus();
+    setInterval(loadStatus, 30000);
 </script>
-
-
-

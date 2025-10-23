@@ -22,19 +22,19 @@ public class HorariosModel : PageModel
 
     private string ApiBaseUrl => _config["ApiSettings:BaseUrl"];
 
-    // GET
+    // ✅ GET
     public async Task OnGetAsync()
     {
         var client = _httpClientFactory.CreateClient();
-        var apiUrl = $"{ApiBaseUrl}FeedSchedules"; // ✅ Nombre real de tu endpoint
+        var apiUrl = $"{ApiBaseUrl}Schedule"; // 🔹 cambio aquí
         Horarios = await client.GetFromJsonAsync<List<ScheduleDto>>(apiUrl) ?? new();
     }
 
-    // POST - Agregar nuevo horario
+    // ✅ POST - Agregar nuevo horario
     public async Task<IActionResult> OnPostAddAsync()
     {
         var client = _httpClientFactory.CreateClient();
-        var apiUrl = $"{ApiBaseUrl}FeedSchedules";
+        var apiUrl = $"{ApiBaseUrl}Schedule"; // 🔹 cambio aquí
 
         var schedule = new ScheduleDto
         {
@@ -49,20 +49,20 @@ public class HorariosModel : PageModel
         return RedirectToPage();
     }
 
-    // POST - Eliminar
+    // ✅ DELETE
     public async Task<IActionResult> OnPostDeleteAsync(int id)
     {
         var client = _httpClientFactory.CreateClient();
-        var apiUrl = $"{ApiBaseUrl}FeedSchedules/{id}";
+        var apiUrl = $"{ApiBaseUrl}Schedule/{id}"; // 🔹 cambio aquí
         await client.DeleteAsync(apiUrl);
         return RedirectToPage();
     }
 
-    // POST - Activar/desactivar
+    // ✅ TOGGLE
     public async Task<IActionResult> OnPostToggleAsync(int id)
     {
         var client = _httpClientFactory.CreateClient();
-        var apiUrl = $"{ApiBaseUrl}FeedSchedules";
+        var apiUrl = $"{ApiBaseUrl}Schedule"; // 🔹 cambio aquí
 
         var horarios = await client.GetFromJsonAsync<List<ScheduleDto>>(apiUrl);
         var item = horarios?.FirstOrDefault(h => h.Id == id);
