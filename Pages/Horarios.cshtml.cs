@@ -22,48 +22,54 @@ public class HorariosModel : PageModel
 
     private string ApiBaseUrl => _config["ApiSettings:BaseUrl"];
 
+    // GET
     public async Task OnGetAsync()
     {
         var client = _httpClientFactory.CreateClient();
-        var apiUrl = $"{ApiBaseUrl}Schedule";  // ✅ usa la base configurada
+        var apiUrl = $"{ApiBaseUrl}FeedSchedules"; // ✅ Nombre real de tu endpoint
         Horarios = await client.GetFromJsonAsync<List<ScheduleDto>>(apiUrl) ?? new();
     }
 
+    // POST - Agregar nuevo horario
     public async Task<IActionResult> OnPostAddAsync()
     {
         var client = _httpClientFactory.CreateClient();
-        var apiUrl = $"{ApiBaseUrl}Schedule";
+        var apiUrl = $"{ApiBaseUrl}FeedSchedules";
 
         var schedule = new ScheduleDto
         {
-            UserId = 1, // más adelante usarás el usuario real logueado
-            Time = DateTime.Today.Add(NewTime),
-            Active = true
+            Hour = NewTime.Hours,
+            Minute = NewTime.Minutes,
+            DaysOfWeek = "Todos",
+            IsActive = true,
+            CreatedAt = DateTime.Now
         };
 
         await client.PostAsJsonAsync(apiUrl, schedule);
         return RedirectToPage();
     }
 
+    // POST - Eliminar
     public async Task<IActionResult> OnPostDeleteAsync(int id)
     {
         var client = _httpClientFactory.CreateClient();
-        var apiUrl = $"{ApiBaseUrl}Schedule/{id}";
+        var apiUrl = $"{ApiBaseUrl}FeedSchedules/{id}";
         await client.DeleteAsync(apiUrl);
         return RedirectToPage();
     }
 
+    // POST - Activar/desactivar
     public async Task<IActionResult> OnPostToggleAsync(int id)
     {
         var client = _httpClientFactory.CreateClient();
-        var apiUrl = $"{ApiBaseUrl}Schedule";
+        var apiUrl = $"{ApiBaseUrl}FeedSchedules";
 
         var horarios = await client.GetFromJsonAsync<List<ScheduleDto>>(apiUrl);
         var item = horarios?.FirstOrDefault(h => h.Id == id);
         if (item == null) return RedirectToPage();
 
-        item.Active = !item.Active;
-        await client.PostAsJsonAsync(apiUrl, item); // se actualizará (usa POST por ahora)
+        item.IsActive = !item.IsActive;
+        await client.PutAsJsonAsync($"{apiUrl}/{id}", item);
 
         return RedirectToPage();
     }
@@ -71,8 +77,10 @@ public class HorariosModel : PageModel
     public class ScheduleDto
     {
         public int Id { get; set; }
-        public int UserId { get; set; }
-        public DateTime Time { get; set; }
-        public bool Active { get; set; }
+        public int Hour { get; set; }
+        public int Minute { get; set; }
+        public string DaysOfWeek { get; set; } = "";
+        public bool IsActive { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

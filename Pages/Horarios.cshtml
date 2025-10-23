@@ -43,6 +43,7 @@
                     <thead>
                         <tr>
                             <th>Hora</th>
+                            <th>Días</th>
                             <th>Activo</th>
                             <th>Acciones</th>
                         </tr>
@@ -51,10 +52,11 @@
                         @foreach (var h in Model.Horarios)
                         {
                             <tr>
-                                <td>@h.Time.ToString("HH:mm")</td>
+                                <td>@($"{h.Hour:D2}:{h.Minute:D2}")</td>
+                                <td>@h.DaysOfWeek</td>
                                 <td>
-                                    <span class="badge @(h.Active ? "bg-success" : "bg-secondary")">
-                                        @(h.Active ? "Sí" : "No")
+                                    <span class="badge @(h.IsActive ? "bg-success" : "bg-secondary")">
+                                        @(h.IsActive ? "Sí" : "No")
                                     </span>
                                 </td>
                                 <td>
